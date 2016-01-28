@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# args
+dir=$@
+
+# check
+[ -z "$dir" ] && exit 1
+
+# main
+[ -d "$dir" ]
+exit $?

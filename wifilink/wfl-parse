@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# args
+dev=$1
+
+# initialise
+path=$(dev-path $dev)
+
+# check
+[ -n "$path" ] || exit 1
+
+# libs
+if ! grep wifilink <<< $PATH >/dev/null; then
+	export PATH=$PATH:$(lib-path wifilink)
+fi
+
+# main
+for file in $(ls $path/msg/*.msg 2>/dev/null); do
+	if grep "*!" $file >/dev/null; then
+		wfl-data $dev $(wfl-json $file) | {
+			while read line; do
+				if [ -n "$msg" ]; then
+					msg+=" $line,"
+				else
+					msg="$line"
+				fi
+			done
+			[ -n "$msg" ] && echo ${msg%?}
+		}
+	fi
+	rm -rf $file
+done

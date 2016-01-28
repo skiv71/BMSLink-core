@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# args
+dev=$1
+opt=$2
+
+# initialise
+path=$(dev-path $dev)
+cidr=$(dev-prt $dev)
+file=$path/.$(basename $0)
+
+# check
+[ -n "$path" ] && chk-cidr $cidr || exit 1
+
+# main
+case $opt in
+
+		file)
+				chk-file $file || exit 1
+				echo $file
+				;;
+
+		*)
+				nmap -sP $cidr &> $file
+				;;
+
+esac

@@ -1,0 +1,54 @@
+#!/bin/bash
+
+# args
+code=$@
+
+# check
+[ -n "$1" ] || exit 1
+
+# initialise
+arr=($(date))
+tim=${arr[3]}
+dow=${arr,,}
+day=${arr[2]}
+mnth=${arr[1],,}
+year=${arr[5]}
+
+# main
+for term in $@; do
+	term=${term,,}
+	grep "then" <<< $term >/dev/null && op=1
+	if grep "=" <<< $term >/dev/null; then
+		a=(${term//=/ })
+		if [ -z "$op" ]; then
+			if [ "$a" = "time" ]; then
+				echo -n " [ -n \"\$(grep ${a[1]} <<< $tim)\" ]"
+			elif [ "$a" = "dayofweek" ]; then
+				echo -n " [ \"$dow\" = \"${a[1]}\" ]"
+			elif [ "$a" = "day" ]; then
+				echo -n " [ \"$day\" = \"${a[1]}\" ]"
+			elif [ "$a" = "month" ]; then
+				echo -n " [ \"$mnth\" = \"${a[1]}\" ]"
+			elif [ "$a" = "year" ]; then
+				echo -n " [ \"$year\" = \"${a[1]}\" ]"
+			else
+				echo -n " [ \"$(pnt-val $a)\" = \"${a[1]}\" ]"
+			fi
+		else
+			echo -n "set-val $a ${a[1]}; exit 2"
+		fi
+	else
+		if [ "$term" = "and" ]; then
+			echo -n " &&"
+		elif [ "$term" = "or" ]; then
+			echo -n " ||"
+		elif [ "$term" = "then" ]; then
+			echo -n "; then "
+		elif [ "$term" = "else" ]; then
+			echo -n "; else "
+		else
+			echo -n "$term"
+		fi
+	fi
+done
+echo "; fi"

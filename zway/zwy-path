@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# path
+path=$(bms-path)
+
+# check
+[ -n "$path" ] || exit 1
+
+# main
+path+=/z-way-server
+chk-dir $path && echo $path || exit 1

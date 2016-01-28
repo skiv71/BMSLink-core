@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# args
+dev=$1
+json=$2
+
+# check
+[ -n "$json" ] || exit 1
+
+# main
+json=$(tr -d '{}"' <<< $json)
+
+for str in ${json//,/ }; do
+	key=(${str//:/ })
+	val=${key[1]}
+	if [ -n "$type" ]; then
+		pnt=$key
+		if [ "$sn" != "null" ]; then
+			pnt=$sn:$pnt
+		fi
+		echo $pnt=$val
+		if [ -n "$val" ]; then
+			pnt-upd $dev $pnt wifilink $val $ep
+		fi
+	fi
+	[ "$key" = "trans" ] && echo trans [$val]:
+	[ "$key" = "prod" ] && echo $val
+	[ "$key" = "serial" ] && sn=$val
+	[ "$key" = "time" ] && ep=$val
+	[ "$key" = "type" ] && type=$val
+done

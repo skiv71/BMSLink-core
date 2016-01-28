@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# args
+id=$1
+val=$2
+
+# check
+[[ $# -eq 2 ]] || exit 1
+
+# main
+len=0A
+rfx=$(basename $0)
+rfx=${rfx//0x/}
+id=${id//:/}
+val=(${val//./ })
+[[ $val -le 0 ]] && cmd=00
+if [[ $val -ge 1 ]] && [[ $val -le 100 ]]; then
+  cmd=10
+	lev=$(flt-rnd $(flt-math $val x 0.31))
+  lev=$(printf "%02x" $lev)
+ else
+  lev=00
+	[[ $val -le 0 ]] && cmd=00
+	[[ $val -ge 101 ]] && [[ $val -le 109 ]] && cmd=01
+	[[ $val -eq 110 ]] && cmd=0A
+	[[ $val -eq 111 ]] && cmd=0B
+	[[ $val -eq 113 ]] && cmd=0D
+	[[ $val -eq 114 ]] && cmd=0E
+	[[ $val -eq 115 ]] && cmd=0F
+fi
+str=$rfx"00"$id$cmd$lev"60"
+[[ ${#str} -eq $((0x$len*2)) ]] || exit 1
+str=$len$str
+echo ${str^^}

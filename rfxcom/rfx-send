@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# args
+dev=$1
+pnt=$2
+val=$3
+
+# libs
+if ! grep rfxcom <<< $PATH >/dev/null; then
+  export PATH=$PATH:$(lib-path rfxcom)
+fi
+
+# initialise
+path=$(dev-path $dev)
+prt=$(dev-prt $dev)
+
+# check
+[ -n "$path" ] || exit 1
+
+# start
+path+=/send
+
+chk-dir $path || mkdir -p $path
+
+file=$path/$(get-ep 3).send
+
+# main
+if [[ $# -eq 3 ]]; then
+	msg="send [$dev-$pnt=$val]: "
+	enc=$(rfx-enc $pnt $val)
+	if [ -c $prt ]; then
+		if [ -n "$enc" ]; then
+			msg+=$enc
+			echo $enc | xxd -r -p >$prt
+		else
+			msg+="invalid string!"
+		fi
+	else
+		msg+="$dev, no valid port!"
+	fi
+	echo $msg > $file
+else
+	for file in $(ls $path/* 2>/dev/null); do
+		while read line; do
+			echo $line
+		done < $file
+		rm -rf $file
+	done
+fi

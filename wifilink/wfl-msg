@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# args
+dev=$1
+file=$2
+
+# initialise
+path=$(dev-path $dev)
+
+# check
+[ -n "$path" ] && chk-file $file || exit 1
+
+path+=/msg
+
+chk-dir $path || mkdir -p $path
+
+# main
+cp $file $path/$(get-ep 3).msg

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# check
+[[ $# -eq 1 ]] || exit 1
+
+# main
+dev=0x${1:2:2}${1:4:2}
+id=${1:8:6}:${1:14:2}
+cmd=${1:16:2}
+lev=$(flt-rnd $(flt-math $((0x${1:18:2})) x 3.23))
+[ "$cmd" = "10" ] && cmd=$cmd;$lev
+echo $dev:$id=$cmd

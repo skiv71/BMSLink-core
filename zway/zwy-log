@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# args
+dev=$1
+
+# initialise
+path=$(log-path z-way)
+log=$path/$dev.log
+
+# check
+[ -n "$path" ] || exit 1
+
+# main
+log-arch $log
+echo $log

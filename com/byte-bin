@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# args
+byte=$1
+bit=$2
+
+# check
+[[ $byte -ge 0 ]] && [[ $byte -le 255 ]] || exit 1
+if [ -n "$bit" ]; then
+	[[ $bit -ge 0 ]] && [[ $bit -le 7 ]] || exit 1
+fi
+
+# main
+for i in {7..0}; do
+	a=$((2**$i))
+	[[ $(($byte&$a)) -eq $a ]] && b=1 || b=0
+	if [ -n "$bit" ]; then
+		[[ $bit -eq $i ]] && echo $b
+	else
+		str+=$b
+	fi
+done
+[ -n "$bit" ] || echo $str

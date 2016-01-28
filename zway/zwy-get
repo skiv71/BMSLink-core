@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# args
+url=$1
+
+# check
+[ -n "$url" ] || exit 1
+
+# main
+a=(${url//\// })
+b=${a[-1]//[!.0-9]/}
+echo ${b%?}
+http-get $url >/dev/null

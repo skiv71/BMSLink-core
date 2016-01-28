@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# args
+file=$1
+
+# check
+[[ $# -eq 1 ]] && [ -f "$file" ] || exit 1
+
+# main
+wc -l < $file

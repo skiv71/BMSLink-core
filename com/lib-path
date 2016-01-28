@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# args
+script=$1
+
+# initialise
+path=$(bms-path)
+
+# check
+[ -n "$path" ] && [ -n "$script" ] || exit 1
+
+# main
+path+=/scripts/$(basename $script .sh)
+
+chk-dir $path && echo $path || exit 1

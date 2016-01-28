@@ -1,0 +1,70 @@
+#!/bin/bash
+
+# args
+dev=$1
+
+# libs
+if ! grep zway <<< $PATH >/dev/null; then
+  export PATH=$PATH:$(lib-path zway)
+fi
+
+# check
+[[ $# -gt 1 ]] || exit 1
+
+# initialise
+tcp=$(zwy-tcp $dev)
+host=localhost
+
+# functions
+url() {
+	[ -z "$tcp" ] && tcp=8083
+	echo http://$host:$tcp/$1/$2
+	[[ $tcp -eq 8083 ]] && exit 2 || exit 0
+}
+
+# poll
+if chk-int $2; then
+	if [[ $2 -eq 0 ]] || [ ${#2} -eq 10 ]; then
+		url ZWaveAPI/Data $2
+	fi
+fi
+
+# command
+declare -A str
+str[0]="devices"
+str[1]="instances"
+str[2]="commandClasses"
+
+a=(${2//./ })
+
+for i in ${!str[@]}; do
+	chk-int ${a[$i]} || exit 1
+	cmd+=${str[$i]}[${a[$i]}].
+done
+cmd=${cmd%?}
+((i++))
+
+# misc
+if [[ ${#a[@]} -gt 4 ]]; then
+	while [ -n "${a[$i]}" ]; do
+		cmd+=.${a[$i]}
+	((i++))
+	done
+	url ZWaveAPI/Run $cmd
+fi
+
+# set
+if [ -n "$3" ]; then
+	val=$(zwy-val $2 $3)
+	[ -n "$val" ] || exit 1
+	if [ -n "${a[3]}" ]; then
+		cmd+=".Set("${a[3]}",%20"$val")"
+	else
+		cmd+=".Set("$val")"
+	fi
+	url ZWaveAPI/Run $cmd
+fi
+
+# get
+cmd+=".Get()"
+url ZWaveAPI/Run $cmd

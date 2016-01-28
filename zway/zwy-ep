@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# args
+file=$1
+
+# check
+chk-file $file || exit 1
+
+# main
+ep=$(jq '.updateTime' $file 2>/dev/null)
+
+[[ ${#ep} -eq 10 ]] && echo $ep || exit 1

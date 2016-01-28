@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# args
+file=$1
+val=$2
+stale=$3
+
+# no file
+chk-file $file || exit 0
+
+# new value
+v=($(<$file))
+[ "$v" != "$val" ] && exit 0
+
+# stale
+if [ -n "$stale" ]; then
+	age=$(file-age $file)
+	[[ $age -gt $stale ]] && exit 0
+fi
+
+# duplicate
+exit 1

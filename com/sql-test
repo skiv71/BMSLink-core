@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# initialise
+declare -A list
+
+list[NULL]=""
+list[%20]=" "
+list[%28]="\("
+list[%29]="\)"
+
+# stdint
+while read -t 1 line; do
+	echo $line | {
+		for key in ${!list[@]}; do
+			str=${line//$key/$list[$key]}
+			#str="s/$key/${list[$key]}/g"
+			#sed -e "\"$str\""
+		done
+		echo $str
+	}
+	exit
+done
+
+# argument
+#echo $@ | replace

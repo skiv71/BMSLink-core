@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# args
+dev=$1
+pnt=$2
+type=$3
+val=$4
+ts=$5
+
+# check
+[ -n "$type" ] || exit 1
+
+# initialise
+table=points
+
+# table
+sql-tables $table
+
+# main
+if [ -n "$(pnt-val $dev $pnt)" ]; then
+	sql="UPDATE $table SET value=\"$val\", timestamp=\"$ts\" WHERE device=\"$dev\" AND point=\"$pnt\""
+else
+	sql="INSERT INTO $table (device,point,type,value,timestamp) VALUES (\"$dev\",\"$pnt\",\"$type\",\"$val\",\"$ts\")"
+fi
+bms-sql $sql
+
+# data
+pnt-data $@
+bms-data $@
+ctrl-upd $dev $pnt $val

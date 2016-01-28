@@ -1,0 +1,5 @@
+#!/bin/bash
+
+if [ ${#1} -eq 10 ]; then
+  date -d @$1 '+%Y%m%d%H%M%S'
+fi

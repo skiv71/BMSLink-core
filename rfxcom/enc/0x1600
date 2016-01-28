@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# args
+id=$1
+val=$2
+
+# check
+[[ $# -eq 2 ]] || exit 1
+
+# main
+len=07
+rfx=$(basename $0)
+rfx=${rfx//0x/}
+id=${id//:/}
+val=(${val//./ })
+[[ $val -eq 1 ]] && cmd=00
+[[ $val -eq 2 ]] && cmd=01
+[[ $val -eq 3 ]] && cmd=02
+[[ $val -eq 4 ]] && cmd=05
+[[ $val -eq 5 ]] && cmd=06
+[[ $val -eq 6 ]] && cmd=09
+[[ $val -eq 7 ]] && cmd=0D
+str=$rfx"00"$id$cmd$lev"70"
+[[ ${#str} -eq $((0x$len*2)) ]] || exit 1
+str=$len$str
+echo ${str^^}

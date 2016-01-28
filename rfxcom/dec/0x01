@@ -1,0 +1,85 @@
+#!/bin/bash
+
+# args
+hex=$1
+
+# check
+[[ $# -eq 1 ]] || exit 1
+
+# functions
+protocols() {
+	local byte p i
+	byte=$1
+	p=$2
+	i=0
+	while [[ $i -lt 8 ]]; do
+		if [[ $(byte-bin 0x$byte $i) -eq 1 ]]; then
+			[ -n "$str" ] && str+=", "
+			[[ $p -eq 1 ]] &&	str+=${p1[$i]}
+			[[ $p -eq 2 ]] &&	str+=${p2[$i]}
+			[[ $p -eq 3 ]] &&	str+=${p3[$i]}
+		fi
+		((i++))
+	done
+	[ -n "$str" ] && echo $str
+}
+
+# rfxcom type
+declare -A type
+
+type[50]="310MHz"
+type[51]="315MHz"
+type[52]="433.92MHz (Receiver only)"
+type[53]="433.92MHz (Transceiver)"
+type[55]="868.00MHz"
+type[56]="868.00MHz FSK"
+type[57]="868.30MHz"
+type[58]="868.30MHz FSK"
+type[59]="868.35MHz"
+type[5A]="868.35MHz FSK"
+type[5B]="868.95MHz"
+
+# protocols 1
+declare -A p1
+
+p1[0]="AE Blyss"
+p1[1]="Rubicson"
+p1[2]="FineOffset/Viking"
+p1[3]="Lightning4"
+p1[4]="RSL"
+p1[5]="Byrox SX"
+p1[6]="RFU"
+p1[7]="Undecoded"
+
+# protocols 2
+declare -A p2
+
+p2[0]="Mertik"
+p2[1]="AD LightwaveRF"
+p2[2]="Hideki/UPM"
+p2[3]="La Crosse"
+p2[4]="FS20"
+p2[5]="ProGuard"
+p2[6]="BlindsT0"
+p2[7]="BlindsT1/T2/T3/T4"
+
+# protocols 3
+declare -A p3
+
+p3[0]="X10"
+p3[1]="ARC"
+p3[2]="AC"
+p3[3]="HomeEasy EU"
+p3[4]="Meiantech"
+p3[5]="Oregon Scientific"
+p3[6]="ATI"
+p3[7]="Visonic"
+
+# main
+if [ "${hex:4:2}" = "00" ]; then
+	echo ${type[${hex:10:2}]}
+	echo f/w ${hex:12:2}
+	protocols ${hex:14:2} 1
+	protocols ${hex:16:2} 2
+	protocols ${hex:18:2} 3
+fi

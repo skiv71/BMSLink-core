@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# args
+hex=${1^^}
+
+# initialise
+lib=$(lib-path rfxcom)/dec
+len=${hex:0:2}
+type=${hex:2:2}
+
+# check
+[[ $# -eq 1 ]] && [[ 0x$len -ge 0x4 ]] || exit 1
+
+# start
+chk-dir $path/data || mkdir -p $path/data
+
+# main
+func=$(ls $lib/0x$type 2>/dev/null)
+[ -n "$func" ] && $func $hex

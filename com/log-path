@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# args
+type=$1
+
+# path
+path=$(bms-path)
+
+# check
+[ -n "$path" ] && path+=/logs || exit 1
+
+# main
+[ -n "$type" ] && path+=/$type
+
+# test
+chk-dir $path || mkdir -p $path
+echo $path

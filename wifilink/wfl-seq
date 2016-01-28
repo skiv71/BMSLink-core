@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# args
+dev=$1
+
+# initialise
+path=$(dev-path $dev)
+file=$path/.seq
+
+# check
+[ -n "$path" ] || exit 1
+
+# main
+if chk-file $file; then
+	seq=$(<$file)
+	if [[ $seq -ge 100 ]] && [[ $seq -lt 999 ]]; then
+		((seq++))
+	else
+		seq=100
+	fi
+else
+	seq=100
+fi
+
+echo $seq | tee $file

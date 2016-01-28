@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# args
+file=$1
+
+# table
+table=logs
+
+# main
+chk-file $file && rm -rf $file || exit 1
+bms-sql DELETE FROM $table WHERE file=\"$file\"

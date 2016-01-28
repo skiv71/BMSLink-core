@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# args
+dev=$1
+
+# initialise
+path=$(dev-path $dev)
+tmp=$path/.$(basename $0)
+stale=15
+
+# check
+[ -n "$path" ] || exit 1
+
+chk-dir $path/poll || exit 1
+
+# abort
+chk-file $tmp && [[ $(file-age $tmp m) -lt 15 ]] && exit 2
+
+# main
+for file in $(ls -r $path/poll/* 2>/dev/null); do
+	[[ $(file-age $file m) -gt $stale ]] && rm -rf $file
+done
+touch $tmp

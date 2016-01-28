@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# args
+sn=$1
+cmd=$2
+
+# initialise
+table=devices
+type=$(dev-type $sn)
+proc="$type.sh $sn"
+
+# check
+[ -n "$type" ] || exit 1
+
+# main
+case ${cmd,,} in
+
+		stop)
+				pid=$(pgrep -f "sys/$proc")
+				kill $pid &>/dev/null
+				;;
+
+		start)
+				bms-proc $proc &
+				;;
+
+esac

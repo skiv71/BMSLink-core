@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# args
+dev=$1
+prt=$2
+
+# initialise
+table=devices
+sn=$(dev-sn $dev)
+typ=$(dev-type $dev)
+
+# check
+[ -n "$sn" ] && [ -n "$typ" ] || exit 1
+
+# table
+sql-tables $table
+
+# path
+path=$(dev-path $sn $typ)
+pid=$(dev-pid $sn)
+
+# main
+if [ -n "$(bms-sql SELECT id FROM $table WHERE serial=\"$sn\")" ]; then
+  bms-sql UPDATE $table SET port=\"$prt\", pid=\"$pid\" WHERE serial=\"$sn\"
+else
+  bms-sql INSERT INTO $table "(serial,device,type,path,port,pid)" VALUES "(\"$sn\",\"$dev\",\"$typ\",\"$path\",\"$prt\",\"$pid\")"
+fi

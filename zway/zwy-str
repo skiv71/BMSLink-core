@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# args
+type=$1
+
+# initialise
+declare -A str
+
+str[node]="devices"
+str[wake]="devices.*.instances.*.commandClasses.*.data.lastWakeup"
+str[data]="devices.*.instances.*.commandClasses.*.data.*"
+str[fail]="devices.*.data.failureCount"
+str[excl]="controller.data.lastExcludedDevice"
+
+# main
+case $type in
+
+		node|wake|data|fail|excl)
+				echo ${str[$type]}
+				;;
+
+		*)
+				exit 1
+				;;
+esac

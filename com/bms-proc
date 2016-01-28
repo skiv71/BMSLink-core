@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# args
+proc=$1
+dev=$2
+
+# initialise
+if [[ $# -eq 2 ]]; then
+	log=$dev
+else
+	log=$proc
+fi
+
+# main
+$proc $dev | bms-log $log &

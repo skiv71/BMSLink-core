@@ -1,0 +1,57 @@
+#!/bin/bash
+exit
+# args
+dev=$1
+pnt=$2
+type=$3
+val=$4
+ts=$5
+
+# initialise
+ep=$(get-ep)
+alias=$(pnt-alias $dev $pnt)
+table=data
+
+# functions
+log() {
+	[ -n "$ts" ] || ts=$ep
+	bms-sql INSERT INTO $table "(alias,value,timestamp,last)" VALUES "(\"$alias\",\"$val\",\"$ts\",\"$ep\")"
+}
+
+# check
+[ -n "$val" ] || exit 1
+
+# abort
+[ -n "$(prt-und $alias)" ] || exit 0
+
+# table
+sql-tables $table
+
+# main
+opt=$(bms-sql SELECT logging FROM points WHERE alias=\"$alias\")
+case $opt in
+
+		0) # disabled
+				exit 0
+				;;
+
+		-1) # on change
+				last=$(bms-sql SELECT value FROM $table WHERE alias=\"$alias\" ORDER BY timestamp DESC LIMIT 1)
+				if [ -z "$last" ] || [ "$val" != "$last" ]; then
+					log
+				fi
+				;;
+
+		-2) # on update
+				log
+				;;
+
+		*) # interval
+				int=$((opt*60))
+				last=$(bms-sql SELECT last FROM $table WHERE alias=\"$alias\" ORDER BY last DESC LIMIT 1)
+				if [ -z "$last" ] || [[ $((ep-last)) -ge $int ]]; then
+					log
+				fi
+				;;
+
+esac

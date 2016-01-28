@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# args
+pid=$1
+
+# check
+[ $# -eq 1 ] || exit 1
+
+# main
+kill -0 $pid &>/dev/null
+
+exit $?

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# args
+prt=$1
+
+# check
+[ -c $prt ] || exit 1
+
+# config
+stty -F $@

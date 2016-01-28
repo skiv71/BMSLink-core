@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# args
+id=$1
+val=$2
+
+# check
+[[ $# -eq 2 ]] || exit 1
+
+# main
+len=07
+rfx=$(basename $0)
+rfx=${rfx//0x/}
+val=(${val//./ })
+hc=$(printf %x \'${id:0:1})
+uc=$(printf %.2d ${id:1:1})
+[[ $val -eq 0 ]] && cmd=00
+[[ $val -ge 101 ]] && [[ $val -le 102 ]] && cmd=01
+str=$rfx"00"$hc$uc$cmd"70"
+[[ ${#str} -eq $((len*2)) ]] || exit 1
+str=$len$str
+echo ${str^^}

@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# args
+dev=$1
+
+# initialise
+prt=$(dev-prt $dev)
+reset=0d00000000000000000000000000
+status=0d00000102000000000000000000
+
+# check
+[ -c $prt ] || exit 1
+
+# reset
+prt-msg resetting...
+ser-send $prt $reset
+sleep 0.5
+echo done!
+
+# status
+prt-msg initialising...
+ser-send $prt $status

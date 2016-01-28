@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# args
+dev=$1
+id=$2
+
+# libs
+if ! grep zway <<< $PATH >/dev/null; then
+  export PATH=$PATH:$(lib-path zway)
+fi
+
+# main
+ep=$(get-ep)
+ts=$(pnt-ts $dev-$id)
+
+[ -n "$ts" ] || exit 0
+
+[[ $((ep-ts)) -gt $(zwy-age $id) ]] || exit 1

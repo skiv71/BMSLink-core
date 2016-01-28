@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# args
+sn=$1
+
+# initialise
+link=/dev/$sn
+table=devices
+
+# main
+if pgrep -f link=$link >/dev/null; then
+	echo $link
+else
+	bms-sql SELECT port FROM $table WHERE serial=\"$sn\"
+fi

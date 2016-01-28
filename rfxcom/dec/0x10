@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# check
+[[ $# -eq 1 ]] || exit 1
+
+# main
+dev=0x${1:2:2}${1:4:2}
+hc=$(printf \\x${1:8:2})
+uc=$((0x${1:10:2}))
+cmd=${1:12:2}
+echo $dev:$hc$uc=$cmd

@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# args
+dev=$1
+pnt=$2
+val=$3
+
+# initialise
+path=$(dev-path $dev)
+prt=$(dev-prt $dev)
+
+# check
+[ -n "$path" ] || exit 1
+
+
+# libs
+if ! grep wifilink <<< $PATH >/dev/null; then
+  export PATH=$PATH:$(lib-path wifilink)
+fi
+
+# start
+path+=/send
+
+chk-dir $path || mkdir -p $path
+
+file=$path/$(get-ep 3).send
+
+chk-dir $path/send || mkdir -p $path/send
+
+# main
+if [[ $# -eq 3 ]]; then
+	if [ -n "$val" ]; then
+		msg="send[$dev-$pnt=$val]: "
+	  des="|BMS Link|$id -> $val|"
+	else
+		msg="send[$dev-$pnt]: "
+	  des="|BMS Link|$pnt|"
+	fi
+	seq=$(wfl-seq $dev)
+	enc=$(wfl-enc $pnt $val)
+	if ping-host $prt; then
+		if [ -n "$enc" ]; then
+			enc=$seq,$enc
+			msg+=$enc
+			echo -ne "$enc$des" | socat - UDP-DATAGRAM:$prt:9760,broadcast
+		else
+			msg+="invalid string!"
+		fi
+	else
+		msg+="no valid ip!"
+	fi
+	echo $msg > $file
+else
+	for file in $(ls $path/* 2>/dev/null); do
+		while read line; do
+			echo $line
+		done < $file
+		rm -rf $file
+	done
+fi

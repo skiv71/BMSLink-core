@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# args
+dev=$1
+
+# libs
+if ! grep zway <<< $PATH >/dev/null; then
+  export PATH=$PATH:$(lib-path zway)
+fi
+
+# initialise
+poll=$(zwy-parse $dev file)
+
+# check
+chk-file $poll || exit 1
+
+# main
+dir=$(dirname $poll)
+file=$(basename $poll)
+a=(${file//./ })
+
+arch=$dir/$a-$(get-ep)
+[ -n "${a[1]}" ] && arch+=.${a[1]}
+
+mv $poll $arch
+gzip $arch

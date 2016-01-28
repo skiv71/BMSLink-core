@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# args
+dev=$1
+
+# libs
+if ! grep cidr <<< $PATH >/dev/null; then
+  export PATH=$PATH:$(lib-path cidr)
+fi
+
+# initialise
+path=$(dev-path $dev)
+file=$(cdr-scan $dev file)
+
+# check
+[ -n "$path" ] && [ -n "$file" ] || exit 1
+
+# main
+i=0
+while read line; do
+	a=($line)
+	if grep done <<< $line >/dev/null; then
+		scan="${a[2]} IP's in ${a[10]} secs"
+	fi
+	if grep report <<< $line >/dev/null; then
+		ip=${a[-1]}
+		if grep [\(\)] <<< $ip >/dev/null; then
+ 			ip=${ip//[\(\)]/}
+		fi
+	fi
+	if grep MAC <<< $line >/dev/null; then
+ 		a=(${line//[\(\)]/})
+		pnt=${a[2],,}
+		if [ -n "$msg" ]; then
+			msg+=", $pnt=$ip"
+		else
+			msg=$pnt=$ip
+		fi
+		pnt-upd $dev $pnt cidr $ip $(get-ep)
+	fi
+	((i++))
+done < $file
+[ -n "$msg" ] && echo "scan [$scan]: $msg"

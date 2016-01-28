@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# args
+alias=$1
+
+# check
+[ -n "$alias" ] || exit 1
+
+# table
+table=points
+
+# sql
+sql="SELECT device,point FROM $table WHERE alias=\"$alias\""
+
+# main
+bms-sql $sql

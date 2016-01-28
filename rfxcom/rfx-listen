@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# args
+dev=$1
+opt=$2
+
+# initialise
+path=$(dev-path $dev)
+prt=$(dev-prt $dev)
+bytes=$path/.bytes
+
+# check
+[ -n "$path" ] && [ -c $prt ] || exit 1
+
+# traps
+trap exit SIGTERM SIGINT SIGHUP
+
+# existing
+for pid in $(pgrep -f "$(basename $0) $dev"); do
+	[[ $pid -ne $$ ]] || continue
+	kill $pid
+done
+
+# start
+path+=/listen
+chk-dir $path || mkdir -p $path
+
+# main
+while [ -c $prt ] && chk-pid $PPID; do
+	timeout 0.1 od -An -t x1 -N1 < $prt >> $bytes 2>/dev/null
+	if [[ $? -eq 124 ]]; then
+		hex=$(<$bytes)
+		hex=${hex//[$IFS]/}
+		if [ "$opt" = "dump" ]; then
+			> $bytes
+			break
+		fi
+		if [ -n "$hex" ]; then
+			len=${#hex}
+			if [[ $((0x${hex:0:2})) -eq $(((len-2)/2)) ]]; then
+				echo ${hex^^} > $path/$(get-ep 3).hex
+			fi
+			> $bytes
+		fi
+	fi
+done

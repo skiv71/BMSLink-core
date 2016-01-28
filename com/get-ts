@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# cmd
+cmd="+%d/%m/%Y %T"
+
+# main
+if [[ $# -eq 1 ]]; then
+	if chk-int $1; then
+		cmd+=.%$1N
+	else
+		exit 1
+	fi
+fi
+date "$cmd"

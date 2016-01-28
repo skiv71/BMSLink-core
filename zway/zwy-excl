@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# args
+dev=$1
+file=$2
+str=$3
+
+# libs
+if ! grep zway <<< $PATH >/dev/null; then
+  export PATH=$PATH:$(lib-path zway)
+fi
+
+# initialise
+path=$(dev-path $dev)
+
+# check
+[ -n "$path" ] && [ -n "$str" ] && chk-dir $path/node || exit 1
+grep -w $(zwy-str excl) <<< $str >/dev/null || exit 1
+
+
+# main
+node=$(jq -c ".\"$str\".value" $file)
+
+[ "$node" != "null" ] || exit 1
+
+if chk-file $path/node/$node; then
+	echo node-$node, excluded!
+	rm -rf $path/node/$node
+	rm -rf $path/node/.$node
+fi

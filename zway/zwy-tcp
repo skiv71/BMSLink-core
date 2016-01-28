@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# args
+dev=$1
+opt=$2
+
+# initialise
+path=$(dev-path $dev)
+temp=$(bms-temp)
+tcp=$path/tcp
+
+# check
+[ -n "$dev" ] && [ -n "$temp" ] && [ -n "$path" ] || exit 1
+
+# main
+case $opt in
+
+		new)
+				zp=8183
+				for dir in $(ls -d $temp/zway/*/ 2>/dev/null); do
+					if grep $dev <<< $dir >/dev/null; then
+						echo $zp | tee $tcp
+						break
+					fi
+					zp=$((zp+100))
+					[[ $zp -gt 8983 ]] && exit 1
+				done
+				;;
+
+		*)
+				chk-file $tcp && cat $tcp || exit 1
+				;;
+
+esac

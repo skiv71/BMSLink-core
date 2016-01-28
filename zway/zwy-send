@@ -1,0 +1,51 @@
+#!/bin/bash
+
+# args
+dev=$1
+pnt=$2
+val=$3
+
+# libs
+if ! grep zway <<< $PATH >/dev/null; then
+  export PATH=$PATH:$(lib-path zway)
+fi
+
+# initialise
+path=$(dev-path $dev)
+tcp=$(zwy-tcp $dev)
+
+# check
+[ -n "$path" ] || exit 1
+
+# start
+path+=/send
+
+chk-dir $path || mkdir -p $path
+
+file=$path/$(get-ep 3).send
+
+# main
+if [[ $# -eq 3 ]]; then
+	msg="send [$dev-$pnt=$val]: "
+	if [ -n "$tcp" ]; then
+		url=$(zwy-url $dev $pnt $val)
+		if [ -n "$url" ]; then
+			a=(${url//\// })
+			enc=${a[-1]}
+			msg+=$enc
+			http-get $url &>/dev/null
+		else
+			msg+="invalid string!"
+		fi
+	else
+		msg+="no valid z-way server!"
+	fi
+	echo $msg > $file
+else
+	for file in $(ls $path/* 2>/dev/null); do
+		while read line; do
+			echo $line
+		done < $file
+		rm -rf $file
+	done
+fi

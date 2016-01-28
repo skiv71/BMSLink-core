@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# args
+alias=$1
+start=$2
+end=$3
+
+# table
+table=data
+
+# sql
+if [ -n "$alias" ]; then
+	if [ -n "$start" ]; then
+		[ -n "$end" ] || end=$(get-ep)
+		sql="SELECT id,value,timestamp,last FROM data WHERE alias=\"$alias\" AND timestamp BETWEEN \"$start\" AND \"$end\" ORDER BY id DESC"
+	else
+		sql="SELECT id,value,timestamp,last FROM data WHERE alias=\"$alias\" ORDER BY id DESC"
+	fi
+else
+	sql="SELECT DISTINCT alias FROM $table ORDER BY alias"
+fi
+
+# main
+bms-sql $sql | {
+	while read line; do
+		echo $line
+	done
+}

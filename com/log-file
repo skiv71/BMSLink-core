@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# args
+id=$1
+
+# table
+table=logs
+
+# main
+bms-sql SELECT file FROM $table WHERE id=\"$id\"

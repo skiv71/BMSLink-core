@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# args
+dev=$1
+ep=$2
+
+# libs
+if ! grep zway <<< $PATH >/dev/null; then
+  export PATH=$PATH:$(lib-path zway)
+fi
+
+# initialise
+path=$(dev-path $dev)
+
+# check
+[ -n "$path" ] || exit 1
+
+# start
+path+=/poll
+
+chk-dir $path || mkdir -p $path
+
+[ -n "$ep" ] || ep=0
+
+poll=$path/$ep.json
+
+# main
+url=$(zwy-url $dev $ep) || exit 1
+
+http-get $url > $poll && echo $poll || exit $?

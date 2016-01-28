@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# args
+dev=$1
+file=$2
+str=$3
+
+# libs
+if ! grep zway <<< $PATH >/dev/null; then
+  export PATH=$PATH:$(lib-path zway)
+fi
+
+# initialise
+path=$(dev-path $dev)
+
+# check
+[ -n "$path" ] || exit 1
+grep -w $(zwy-str node) <<< $str >/dev/null || exit 1
+chk-dir $path/node || mkdir -p $path/node
+
+# main
+a=$(jq -c ".\"$str\" | keys" $file)
+nodes=${a//[\[\]]/}
+c=(${nodes//[\",]/ })
+i=0
+jq ".$str[$nodes].data | .deviceTypeString.value" $file | {
+	while read line; do
+		node=${c[$i]}
+		type=${line//\"/}
+		[ -n "$type" ] || type=Undefined
+		[ -n "$d" ] && d+=", "
+		d+="node-$node($type)"
+  	[[ $type != *Controller* ]] && zwy-class $node $file > $path/node/$node
+		((i++))
+	done
+	[ -n "$d" ] && echo $d
+}

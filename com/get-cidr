@@ -1,0 +1,3 @@
+#!/bin/bash
+
+ip route | grep "/" | grep "eth" | awk -F ' ' '{print $1}'

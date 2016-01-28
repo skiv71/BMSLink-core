@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# initialise
+dev=/dev/ttyAMA0
+
+# check
+[ -c $dev ] || exit 0
+
+# probe
+stty -F $dev cs8 raw 115200
+echo -ne "\x01\x03\x00\x07\xFB" > $dev
+a=($(timeout 5 xxd -p -l 12 -c 2 < $dev))
+if [ "${a[3]}" != "0147" ]; then
+  remove
+  exit 0
+fi
+
+# serial
+a=($(ifconfig | grep eth))
+b=${a[-1]//:/}
+sn=z${b:6:12}
+if [[ ${#sn} -ne 7 ]]; then
+  remove
+  exit 1
+fi
+
+# port
+prt=$(basename $dev)-$sn
+echo $prt,$dev

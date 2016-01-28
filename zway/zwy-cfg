@@ -1,0 +1,56 @@
+#!/bin/bash
+
+# args
+dev=$1
+opt=$2
+
+# check
+[[ $# -lt 1 ]] && exit 1
+
+# libs
+if ! grep zway <<< $PATH >/dev/null; then
+  export PATH=$PATH:$(lib-path zway)
+fi
+
+# initialise
+zway=$(zwy-path)
+[ -z "$zway" ] && exit 1
+
+# home
+home=$zway/serial/$dev
+chk-dir $home || exit 1
+
+#logs
+log=$(zwy-log $dev)
+[ -n "$log" ] || exit 1
+lev=0
+
+#xml
+xml=$home/config.xml
+
+# functions
+conf() {
+	echo "<config>"
+	echo -e "\t<automation-dir>"$home"/automation</automation-dir>"
+	echo -e "\t<log-file>"$log"</log-file>"
+	echo -e "\t<log-level>"$lev"</log-level>"
+	echo "</config>"
+}
+
+# main
+case $opt in
+
+		new)
+				conf > $xml
+				chk-file $xml || exit 1
+				;;
+
+		file)
+				chk-file $xml && echo $xml || exit 1
+				;;
+
+		*)
+				conf
+				;;
+
+esac

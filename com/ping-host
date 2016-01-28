@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# args
+ip=$1
+
+# check
+chk-ip $ip || exit 1
+
+# main
+fping -r1 $ip &>/dev/null
+
+exit $?

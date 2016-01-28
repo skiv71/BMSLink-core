@@ -1,0 +1,66 @@
+#!/bin/bash
+
+# args
+dev=$1
+file=$2
+
+# libs
+if ! grep zway <<< $PATH >/dev/null; then
+  export PATH=$PATH:$(lib-path zway)
+fi
+
+# initialise
+ep=$(zwy-ep $file)
+declare -A parse
+
+# check
+[ -n "$ep" ] || exit 1
+
+# functions
+parse() {
+	local a
+	a=$(zwy-$1 $dev $file $str)
+	if [ -n "$a" ]; then
+		[ -n "${parse[$1]}" ] && parse[$1]+=", "
+		parse[$1]+=$a
+	fi
+}
+
+# main
+while read line; do
+
+	str=${line//[\",]/}
+
+	case $str in
+
+			$(zwy-str node))
+					parse node
+					;;
+
+			$(zwy-str wake))
+					parse wake
+					;;
+
+			$(zwy-str data))
+					parse data
+					;;
+
+			$(zwy-str fail))
+					parse fail
+					;;
+
+			$(zwy-str excl))
+					parse excl
+					;;
+
+	esac
+
+done <<< "$(jq keys $file)"
+
+# print
+for key in ${!parse[@]}; do
+	a=${parse[$key]}
+	[ -n "$a" ] && echo epoch [$ep]: $a
+done
+
+[[ $(file-lines $file) -gt 2 ]] || rm -rf $file

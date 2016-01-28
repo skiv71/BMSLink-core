@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# args
+str=$1
+
+# main
+str=${str//NULL/}
+str=${str//%20/ }
+str=${str//%28/\(}
+str=${str//%29/\)}
+
+# print
+echo $str

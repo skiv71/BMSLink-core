@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# check
+[[ $# -eq 1 ]] || exit 1
+
+# main
+dev=0x${1:2:2}${1:4:2}
+id=${1:8:6}
+status=$((0x${1:14:2} & 0x7F))
+[[ ${#status} -lt 2 ]] && status=0$status
+echo $dev:$id=$status

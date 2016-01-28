@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# args
+dev=$1
+file=$2
+
+# check
+chk-file $file || exit 1
+
+# libs
+if ! grep rfxcom <<< $PATH >/dev/null; then
+	export PATH=$PATH:$(lib-path rfxcom)
+fi
+
+# main
+hex=$(<$file)
+rfx-dec $hex | {
+	while read line; do
+		if [ -n "$msg" ]; then
+			msg+=", $line"
+		else
+			msg=$line
+		fi
+		if grep '=' <<< $line >/dev/null; then
+			pnt=(${line//=/ })
+			if [ -n "${pnt[1]}" ]; then
+				val=${pnt[1]}
+				ep=$(file-ts $file)
+				pnt-upd $dev $pnt rfxcom $val $ep
+			fi
+		fi
+	done
+	[ -n "$msg" ] || msg=undecoded!
+	echo hex [$hex]: $msg
+}
+
+# finish
+dir=$(dirname $file)
+suf=(${file//./ })
+mv $file $dir/$(basename $suf .${suf[-1]}).$dec

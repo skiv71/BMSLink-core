@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# args
+id=$1
+
+# check
+[[ $# -eq 1 ]] || exit 1
+
+# main
+a=(${id//./ })
+cls=${a[2]}
+
+case $cls in
+
+		37|38|48|49|50)
+				age=60
+				;;
+
+		64|67)
+				age=3600
+				;;
+
+		128)
+				age=86400
+				;;
+
+		*)
+				age=900
+				;;
+
+esac
+
+echo $((age-15))

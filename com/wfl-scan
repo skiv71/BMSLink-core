@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# args
+opt=$1
+
+# initialise
+path=$(bms-temp)
+tmp=$path/.$(basename $0)
+
+# check
+[ -n "$path" ] || exit 1
+
+# libs
+export PATH=$PATH:$(lib-path wifilink)
+
+# functions
+udp() {
+	echo > $tmp
+	socat -d -d -d -lf $tmp - udp-l:9761 1>/dev/null &
+	echo -ne "001,\!F*p" | socat - UDP-DATAGRAM:255.255.255.255:9760,broadcast 2>/dev/null
+}
+
+# main
+case $opt in
+
+		file)
+				echo $tmp
+				exit 0
+				;;
+
+		force)
+				udp
+				;;
+
+		*)
+				pgrep -f "wfl-listen" >/dev/null || udp
+				;;
+
+esac
+
+# parse
+wfl-id $tmp

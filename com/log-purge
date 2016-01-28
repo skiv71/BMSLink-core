@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# args
+age=$1
+
+# initialise
+path=$(log-path archive)
+
+# check
+[ -n "age" ] || exit 1
+
+# main
+for file in $(ls path/* 2>/dev/null); do
+	if [[ $(file-age $file d) -gt $age ]]; then
+		log-del $file
+	fi
+done

@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# args
+id=$1
+val=$2
+
+# main
+if [ -n "$val" ]; then
+  val=(${val//./ })
+  if [[ ${#id} -ge 4 ]]; then
+    if [[ $val -ge 1 ]] && [[ $val -le 100 ]]; then
+      lev=$(flt-rnd $(flt-math $val x 0.32))
+      cmd=FdP$lev
+    else
+			[[ $val -le 0 ]] && cmd=F0
+			[[ $val -ge 101 ]] && [[ $val -le 109 ]] && cmd=F1
+			[[ $val -eq 110 ]] && cmd=Fu
+			[[ $val -eq 111 ]] && cmd=Fl
+			[[ $val -eq 113 ]] && cmd="F("
+      [[ $val -eq 114 ]] && cmd="F^"
+			[[ $val -eq 115 ]] && cmd="F)"
+    fi
+  else
+		[[ $val -eq 0 ]] && cmd=DhF0
+		[[ $val -ge 101 ]] && [[ $val -le 102 ]] && cmd=DhF1
+  fi
+  [[ -n "$cmd" ]] && echo "!"$id$cmd
+else
+  [ "${id^^}" = "FW" ] && echo "@?v"
+	[ "${id^^}" = "REG" ] && echo "!F*p"
+fi

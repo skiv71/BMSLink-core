@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# check
+[[ $# -eq 1 ]] || exit 1
+
+# main
+dev=0x${1:2:2}${1:4:2}
+id=${1:8:4}
+val1=$((0x${1:12:4}))
+[[ $val1 -gt 32767 ]] && val1=$((32767-val1))
+val1=$(flt-rnd $(flt-math $val1 x 0.1) 1)
+val2=$((0x${1:16:2}))
+val3=$((0x${1:20:4}))
+echo $dev:$id:1=$val1
+echo $dev:$id:2=$val2
+echo $dev:$id:3=$val3

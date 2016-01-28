@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# args
+str=$1
+val=$2
+
+# libs
+export PATH=$PATH:$(lib-path rfxcom)/enc
+
+# check
+[[ $# -eq 2 ]] || exit 1
+
+# start
+type=(${str//-/ })
+
+i=1
+while [[ $i -lt ${#type[@]} ]]; do
+	[ -n "$id" ] && id+=-
+	id+=${type[$i]}
+	((i++))
+done
+
+# main
+case ${type//0x/} in
+
+		1008|1400|1406|1600)
+				for enc in $($type $id $val); do
+					echo $enc
+				done
+				;;
+
+esac

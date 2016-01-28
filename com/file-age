@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# args
+file=$1
+opts=$2
+
+# check
+chk-file $file || exit 1
+
+# main
+sec=$(($(date +%s)- $(file-ts $file)))
+
+case ${opts,,} in
+
+		m)
+      echo $((sec/60))
+			;;
+
+		h)
+      echo $((sec/3600))
+			;;
+
+		d)
+      echo $((sec/86400))
+			;;
+
+		*)
+  	  echo $sec
+			;;
+
+esac

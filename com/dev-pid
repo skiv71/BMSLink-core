@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# args
+sn=$1
+
+# initialise
+table=devices
+type=$(dev-type $sn)
+
+# check
+[ -n "$type" ] || exit 1
+
+# main
+pgrep -f "$type.sh $sn"

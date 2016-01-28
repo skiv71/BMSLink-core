@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# args
+node=$1
+file=$2
+
+# check
+[[ $# -eq 2 ]] && chk-file $file || exit 1
+
+# functions
+array() {
+	local a
+	a=${1//[\[\]]/}
+	echo ${a//[\",]/ }
+}
+
+# main
+for inst in $(array $(jq -c ".devices.\"$node\".instances | keys" $file)); do
+	for class in $(array $(jq -c ".devices.\"$node\".instances.\"$inst\".commandClasses | keys" $file)); do
+		echo $node.$inst.$class
+	done
+done

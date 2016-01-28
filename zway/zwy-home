@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# args
+dev=$1
+
+# check
+[[ $# -eq 1 ]] || exit 1
+
+# libs
+if ! grep zway <<< $PATH >/dev/null; then
+  export PATH=$PATH:$(lib-path zway)
+fi
+
+# initialise
+zway=$(zwy-path)
+home=$zway/serial/$dev
+chk-dir $zway || exit 1
+
+# home
+if ! chk-dir $home; then
+	src=$zway/htdocs/expert
+	chk-dir $src && cp -R $src $home || exit 1
+fi
+
+# auto/config/trans
+for dir in automation config translations; do
+	chk-dir $home/$dir && continue
+	src=$zway/$dir
+	chk-dir $src && cp -R $src $home || exit 1
+	cp -R $src $home
+done
+
+# zddx
+src=$zway/ZDDX
+chk-dir $src || exit 1
+if chk-dir $home/ZDDX; then
+	rsync -a --delete $src/ $home/ZDDX
+else
+	cp -R $src $home
+fi

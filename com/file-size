@@ -1,0 +1,56 @@
+#!/bin/bash
+
+# args
+file=$1
+opt=${2,,}
+
+# check
+[[ $# -ge 1 ]] && [ -f "$file" ] || exit 1
+
+# functions
+round() {
+	flt-rnd $(flt-math $1 x $2) $3
+}
+
+# factor
+declare -A mul
+
+mul[gb]=0.0000000009313
+mul[mb]=0.0000009536743
+mul[kb]=0.0009765
+
+# main
+bytes=$(wc -c < $file)
+
+case $opt in
+
+		auto)
+				len=${#bytes}
+				if [[ $len -gt 9 ]]; then
+					echo $(round $bytes ${mul[gb]} 1) Gb
+				elif [[ $len -gt 6 ]]; then
+					echo $(round $bytes ${mul[mb]} 1) Mb
+				elif [[ $len -gt 3 ]]; then
+					echo $(round $bytes ${mul[kb]}) Kb
+				else
+					echo $bytes bytes
+				fi
+				;;
+
+		gb)
+				echo $(round $bytes ${mul[gb]}) Gb
+				;;
+
+		mb)
+				echo $(round $bytes ${mul[mb]}) Mb
+				;;
+
+		kb)
+				echo $(round $bytes ${mul[kb]}) Kb
+				;;
+
+		*)
+				echo $bytes
+				;;
+
+esac

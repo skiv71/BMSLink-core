@@ -1,0 +1,51 @@
+#!/bin/bash
+
+# args
+dev=$1
+pnt=$2
+val=$3
+ts=$4
+
+# initialise
+table=control
+val=${val,,}
+id=($(bms-sql SELECT id,type FROM $table WHERE device=\"$dev\" AND point=\"$pnt\"))
+type=${id[1]}
+
+# check
+[[ $# -ge 3 ]] && [ -n "$type" ] || exit 1
+
+# main
+case $type in
+
+		0)
+				if [ "$val" = "off" ] || [ "$val" = "false" ]; then
+					sql="SET switch=\"off\""
+				else
+					sql="SET switch=\"on\""
+				fi
+				;;
+
+		1)
+				if [ "${val,,}" = "off" ]; then
+					sql="SET switch=\"off\""
+				elif [ "${val,,}" = "on" ]; then
+					sql="SET switch=\"on\""
+				else
+					sql="SET level=\"$val\", value=\"$val\""
+				fi
+				;;
+
+		2)
+				sql="SET value=\"$val\""
+				;;
+
+esac
+
+# sql
+[ -n "$sql" ] || exit 1
+
+if [ -n "$ts" ]; then
+	sql+=", timestamp=\"$ts\""
+fi
+bms-sql UPDATE $table $sql WHERE id=$id

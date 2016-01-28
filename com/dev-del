@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# args
+sn=$1
+
+# initialise
+path=$(dev-path $sn)
+
+# check
+[ -n "$path" ] || exit 1
+
+# initialise
+table=devices
+
+# main
+bms-sql DELETE FROM $table WHERE serial=\"$sn\"
+rm -rf $path

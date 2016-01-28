@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# args
+dev=$1
+
+# libs
+if ! grep zway <<< $PATH >/dev/null; then
+  export PATH=$PATH:$(lib-path zway)
+fi
+
+# initialise
+path=$(dev-path $dev)
+zway=$(zwy-path)
+src=$zway/ZDDX
+tmp=$path/.$(basename $0)
+file=last_changed.txt
+
+# check
+[ -n "$zway" ] ||	exit 1
+chk-dir $src || exit 1
+
+# abort
+chk-file $tmp && [[ $(file-age $tmp m) -lt 60 ]] && exit 2
+
+# main
+if [ -z "$dev" ]; then
+	cd $src
+	prt-msg updating main ZDDX files...
+	./UpdateXMLs.sh &>/dev/null
+	echo "done!"
+	exit 0
+fi
+
+# device
+[ -n "$path" ] || exit 1
+
+dest=$zway/serial/$dev/ZDDX
+chk-dir $dest || exit 1
+chk-file $src/$file || exit 1
+
+touch $tmp
+
+# abort
+if chk-file $dest/$file; then
+	[ "$(<$src/$file)" != "$(<$dest/$file)" ] || exit 0
+fi
+
+# sync
+prt-sep
+prt-msg updating ZDDX files...
+rsync -a --delete $src/ $dest
+echo "done!"

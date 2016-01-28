@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# check
+[[ $# -eq 1 ]] || exit 1
+
+# main
+a=(${1//./ })
+
+case ${a[2]} in
+
+		32|39|112|113|132|113)
+				exit 1
+				;;
+
+		37|38|128)
+				echo .value
+				;;
+
+		48)
+				echo .level.value
+				;;
+
+		49|50|67)
+				echo .val.value
+				;;
+
+		64|68)
+				echo .mode.value
+				;;
+
+		69)
+				echo .state.value
+				;;
+
+esac

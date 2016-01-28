@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# initialise
+net=$(get-cidr)
+
+# check
+[ -n "$net" ] || exit 1
+
+# start
+ip=(${net//\// })
+cidr=${ip[1]}
+oct=(${ip//./ })
+
+# main
+case $cidr in
+
+		24)
+				echo $oct.${oct[1]}.${oct[2]}.x,$net
+				;;
+
+		16)
+				echo $oct.${oct[1]}.x.y,$net
+				;;
+
+		8)
+				echo $oct.x.y.z,$net
+				;;
+
+		*)
+				echo $ip,$net
+				;;
+
+esac

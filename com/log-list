@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# args
+name=$1
+
+# path
+path=$(log-path)
+table=logs
+
+# check
+[ -n "$path" ] || exit 1
+
+# table
+sql-tables $table
+
+# purge
+bms-sql SELECT file FROM $table | {
+	while read file; do
+		if ! chk-file $file; then
+			bms-sql DELETE FROM $table WHERE file=\"$file\"
+		fi
+	done
+}
+
+# main
+if [ -n "$name" ]; then
+	find $path/* -type f -name *.$name
+else
+	for file in $(find $path/* -type f); do
+		ts=$(file-ts $file)
+		size=$(prt-und $(file-size $file auto))
+		if [ -n "$(bms-sql SELECT id FROM $table WHERE file=\"$file\")" ]; then
+			bms-sql UPDATE $table SET timestamp=\"$ts\", size=\"$size\" WHERE file=\"$file\"
+		else
+			a=(${file//\// })
+			name=${a[-1]}
+			type=${a[-2]}
+			bms-sql INSERT INTO $table "(name,file,type,timestamp,size)" VALUES "(\"$name\",\"$file\",\"$type\",\"$ts\",\"$size\")"
+		fi
+	done
+fi

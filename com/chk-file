@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# args
+file=$@
+
+# check
+[ -z "$file" ] && exit 1
+
+# main
+[ -f "$file" ]
+exit $?

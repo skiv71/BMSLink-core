@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# check
+[[ $# -lt 1 ]] && exit 1
+
+[[ $# -eq 1 ]] && args="localhost $1" || args="$1 $2"
+
+# main
+timeout 1s nc $args < /dev/null &>/dev/null
+
+exit $?

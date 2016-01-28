@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# args
+msg=$@
+
+# check
+[[ $# -ge 1 ]] || exit 1
+
+# main
+if grep "\.\.\." <<< "$msg" >/dev/null; then
+	echo -n "$msg "
+else
+	echo $msg
+fi

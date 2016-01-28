@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# args
+dev=$1
+
+# initialise
+prt=$(dev-prt $dev)
+config="38400 cs8 raw"
+
+# check
+[ -c $prt ] || exit 1
+
+# config
+ser-cfg $prt $config

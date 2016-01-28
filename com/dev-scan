@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# initialise
+table=devices
+types="raz rpi usb wfl net"
+file=$(bms-temp)/.$(basename $0)
+
+#	reset
+rm -rf $file
+bms-sql UPDATE $table SET port=\"\" 2>/dev/null
+
+# main
+for type in $types; do
+	$type-scan | {
+		while read str; do
+			sn=(${str//,/ })
+			dev-upd $sn ${sn[1]}
+		done
+	}
+done
+> $file

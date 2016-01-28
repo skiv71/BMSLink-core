@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# args
+log=$1
+
+# initialise
+path=$(log-path archive)
+ep=$(get-ep 3)
+
+# functions
+archive() {
+	arch=$(basename $1 .log)-$ep.log
+	cp $1 $path/$arch
+	gzip $path/$arch
+	> $1
+}
+
+# main
+if [ -n "$log" ]; then
+	if chk-file $log; then
+		archive $log
+	else
+		exit 1
+	fi
+else
+	for log in $(log-list log); do
+		[[ $(file-size $log) -gt 0 ]] && archive $log
+	done
+fi

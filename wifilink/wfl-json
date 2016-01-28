@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# args
+file=$1
+
+# check
+chk-file $file || exit 1
+
+# main
+tr '*!' '\n' < $file | awk '!seen[$0]++'

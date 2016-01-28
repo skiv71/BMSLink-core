@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# args
+dev=$1
+file=$2
+str=$3
+
+# libs
+if ! grep zway <<< $PATH >/dev/null; then
+  export PATH=$PATH:$(lib-path zway)
+fi
+
+# initialise
+path=$(dev-path $dev)
+pnt=$(zwy-id $str)
+node=(${pnt//./ })
+keys=$(zwy-keys $pnt)
+keysx=$?
+
+# check
+grep -w $(zwy-str data) <<< $str >/dev/null || exit 1
+[[ $keysx -eq 0 ]] && [ -n "$pnt" ] || exit 1
+chk-file $path/node/$node || exit 1
+
+# main
+if [ -n "$keys" ]; then
+	keys+=,.updateTime
+  val=($(jq -c ".\"$str\" | $keys" $file))
+	ep=${val[1]}
+else
+	val=$(jq -c ".\"$str\"" $file)
+fi
+
+# abort
+[ "$val" != "null" ] || exit 1
+[[ ${#val} -eq 10 ]] && chk-int $val && exit 1
+if [ "$val" = "$(pnt-val $dev $pnt)" ]; then
+	ts=$(pnt-ts $dev $pnt)
+	[[ $((ep-ts)) -gt 5 ]] || exit 1
+fi
+
+# data
+if [ -n "$keys" ]; then
+	echo $pnt=$val
+	pnt-upd $dev $pnt zway $val $ep
+else
+	echo $pnt, undecoded!
+fi

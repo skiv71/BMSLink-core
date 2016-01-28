@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# initialise
+path=/dev/serial/by-id
+types+="RFXCOM_RFXtrx433 "
+types+="FTDI_FT232R_USB_UART "
+
+# check
+chk-dir $path || exit 1
+
+# start
+for dev in $(ls $path); do
+	for type in $types; do
+		grep $type <<< $dev >/dev/null || continue
+		echo $dev,$(readlink -m $path/$dev)
+	done
+done

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# check
+[[ $# -eq 1 ]] || exit 1
+
+# main
+dev=0x${1:2:2}${1:4:2}
+id=${1:8:4}
+val1=$(flt-rnd $(flt-math $((0x${1:14:8})) x 0.001) 3)
+val2=$(flt-rnd $(flt-math $((0x${1:22:12})) x 0.00000447) 3)
+echo $dev:$id:1=$val1
+echo $dev:$id:2=$val2

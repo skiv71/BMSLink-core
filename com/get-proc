@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# args
+pid=$1
+
+# check
+chk-int $pid || exit 1
+
+# main
+a=($(ps -o command $pid))
+
+if [ -n "${a[2]}" ]; then
+	echo $(basename ${a[2]}) ${a[3]}
+fi

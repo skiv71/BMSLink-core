@@ -1,0 +1,114 @@
+#!/bin/bash
+
+# args
+table=$1
+
+# tables
+declare -A tables
+
+# automation
+sql="CREATE TABLE automation"
+sql+="("
+sql+="id INT(11) NOT NULL AUTO_INCREMENT,"
+sql+="name VARCHAR(255) NOT NULL,"
+sql+="enabled VARCHAR(255) DEFAULT '0',"
+sql+="text TEXT NOT NULL,"
+sql+="PRIMARY KEY (id),"
+sql+="UNIQUE (name)"
+sql+=")"
+tables[automation]=$sql
+
+# control
+sql="CREATE TABLE control"
+sql+="("
+sql+="id INT(11) NOT NULL AUTO_INCREMENT,"
+sql+="name VARCHAR(255) NOT NULL,"
+sql+="device VARCHAR(255) NOT NULL,"
+sql+="point VARCHAR(255) NOT NULL,"
+sql+="type VARCHAR(255) NOT NULL,"
+sql+="switch VARCHAR(255) DEFAULT 'off',"
+sql+="level VARCHAR(255) DEFAULT '0',"
+sql+="value VARCHAR(255) DEFAULT '0',"
+sql+="timestamp VARCHAR(255) NOT NULL,"
+sql+="PRIMARY KEY (id),"
+sql+="UNIQUE (name)"
+sql+=")"
+tables[control]=$sql
+
+# data
+sql="CREATE TABLE data"
+sql+="("
+sql+="id INT(11) NOT NULL AUTO_INCREMENT,"
+sql+="alias VARCHAR(255) NOT NULL,"
+sql+="value VARCHAR(255) DEFAULT '',"
+sql+="timestamp VARCHAR(255),"
+sql+="last VARCHAR(255),"
+sql+="PRIMARY KEY (id)"
+sql+=")"
+tables[data]=$sql
+
+# devices
+sql="create table devices"
+sql+="("
+sql+="id INT(11) NOT NULL AUTO_INCREMENT,"
+sql+="serial VARCHAR(255) NOT NULL,"
+sql+="device VARCHAR(255) NOT NULL,"
+sql+="type VARCHAR(255) NOT NULL,"
+sql+="autostart INT(11) DEFAULT '0',"
+sql+="logging INT(11) DEFAULT '0',"
+sql+="path VARCHAR(255) NOT NULL,"
+sql+="port VARCHAR(255) DEFAULT '',"
+sql+="pid VARCHAR(255) DEFAULT '',"
+sql+="PRIMARY KEY (id)"
+sql+=")"
+tables[devices]=$sql
+
+# logs
+sql="CREATE TABLE logs"
+sql+="("
+sql+="id INT(11) NOT NULL AUTO_INCREMENT,"
+sql+="log VARCHAR(255) NOT NULL,"
+sql+="text TEXT NOT NULL,"
+sql+="epoch VARCHAR(255) NOT NULL,"
+sql+="timestamp VARCHAR(255) NOT NULL,"
+sql+="PRIMARY KEY (id)"
+sql+=")"
+tables[logs]=$sql
+
+# points
+sql="CREATE TABLE points"
+sql+="("
+sql+="id INT(11) NOT NULL AUTO_INCREMENT,"
+sql+="device VARCHAR(255) NOT NULL,"
+sql+="point VARCHAR(255) NOT NULL,"
+sql+="type VARCHAR(255) NOT NULL,"
+sql+="value VARCHAR(255) DEFAULT '',"
+sql+="units VARCHAR(255) DEFAULT '',"
+sql+="timestamp VARCHAR(255),"
+sql+="logging VARCHAR(255) DEFAULT '0',"
+sql+="\`purge\` VARCHAR(255) DEFAULT '0',"
+sql+="alias VARCHAR(255) DEFAULT '',"
+sql+="PRIMARY KEY (id)"
+sql+=")"
+tables[points]=$sql
+
+# settings
+sql="CREATE TABLE settings"
+sql+="("
+sql+="id INT(11) NOT NULL AUTO_INCREMENT,"
+sql+="name VARCHAR(255) NOT NULL,"
+sql+="value VARCHAR(255) DEFAULT '',"
+sql+="type VARCHAR(255) DEFAULT '',"
+sql+="PRIMARY KEY (id),"
+sql+="UNIQUE (name)"
+sql+=")"
+tables[settings]=$sql
+
+# main
+for key in ${!tables[@]}; do
+	if [ "$table" = "$key" ] || [ -z "$table" ]; then
+		if ! bms-sql DESCRIBE $key &>/dev/null; then
+			bms-sql ${tables[$key]}
+		fi
+	fi
+done

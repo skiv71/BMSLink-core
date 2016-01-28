@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# path
+path=$(zwy-path)
+file=version
+reqd="v2.0.1"
+
+# check
+[ -n "$path" ] || exit 1
+
+# main
+cd $path
+
+LD_LIBRARY_PATH=libs ./z-way-server -h &> $file
+
+ver=$(grep version $file | awk '{print $3}')
+
+[ -n "$ver" ] && echo $ver
+
+[ "$ver" = "$reqd" ] || exit 1

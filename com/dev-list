@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# initialise
+table=devices
+
+# main
+for sn in $(bms-sql SELECT serial FROM $table); do
+	echo $sn
+	pid=$(dev-pid $sn)
+	bms-sql UPDATE $table SET pid=\"$pid\" WHERE serial=\"$sn\"
+done

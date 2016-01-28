@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# args
+id=$1
+val=$2
+
+# check
+[[ $# -eq 2 ]] || exit 1
+
+# main
+len=0A
+rfx=$(basename $0)
+rfx=${rfx//0x/}
+id=${id//:/}
+val=(${val//./ })
+[[ $val -eq 0 ]] && cmd=00
+[[ $val -eq 101 ]] && cmd=01
+[[ $val -eq 102 ]] && cmd=02
+[[ $val -eq 103 ]] && cmd=03
+[[ $val -eq 104 ]] && cmd=04
+[[ $val -eq 105 ]] && cmd=05
+if [[ $val -ge 106 ]] && [[ $val -le 132 ]]; then
+  cmd=$(printf "%02x" $val)
+fi
+str=$rfx"00"$id$cmd$lev"60"
+[[ ${#str} -eq $((0x$len*2)) ]] || exit 1
+str=$len$str
+echo ${str^^}

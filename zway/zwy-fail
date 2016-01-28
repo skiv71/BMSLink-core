@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# args
+dev=$1
+file=$2
+str=$3
+
+# libs
+if ! grep zway <<< $PATH >/dev/null; then
+  export PATH=$PATH:$(lib-path zway)
+fi
+
+# initialise
+path=$(dev-path $dev)
+
+# check
+[ -n "$path" ] && [ -n "$str" ] && chk-dir $path/node || exit 1
+grep -w $(zwy-str fail) <<< $str >/dev/null || exit 1
+
+
+# main
+id=$(zwy-id $str)
+node=(${id//./ })
+
+val=$(jq -c ".\"$str\".value" $file)
+
+# fail
+if [[ $val -gt 3 ]]; then
+	if chk-file $path/node/$node; then
+		echo node-$node, failed!
+		mv $path/node/$node $path/node/.$node
+	fi
+fi
+
+# recover
+if [[ $val -eq 0 ]]; then
+	if chk-file $path/node/.$node; then
+		echo node-$node, recovered!
+		mv $path/node/.$node $path/node/$node
+	fi
+fi

@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# args
+dev=$1
+
+# libs
+if ! grep zway <<< $PATH >/dev/null; then
+  export PATH=$PATH:$(lib-path zway)
+fi
+
+# initialise
+path=$(dev-path $dev)
+tmp=$path/.$(basename $0)
+
+# check
+[ -n "$path" ] && chk-dir $path/node || exit 1
+
+# abort
+chk-file $tmp && [[ $(file-age $tmp) -lt 60 ]] && exit 2
+
+# main
+for file in $(ls $path/node/* 2>/dev/null); do
+	node=$(basename $file)
+	grep "$node.*.128" $file >/dev/null && continue
+	while read id; do
+		keys=$(zwy-keys $id)
+		[ -n "$keys" ] || continue
+		zwy-cmd $dev $id || continue
+		url=$(zwy-url $dev $id) || continue
+		get=$(zwy-get $url)
+		if [ -n "$get" ]; then
+			[ -n "$gets" ] && gets+=", "
+			gets+=$get
+		fi
+		sleep 0.1
+	done < $file
+done
+if [ -n "$gets" ]; then
+	echo auto poll [mains]: $gets
+fi
+touch $tmp

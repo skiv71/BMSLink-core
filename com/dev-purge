@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# args
+dev=$1
+dir=$2
+age=$3
+
+# initialise
+path=$(dev-path $dev)
+[ -n "$age" ] || age=15
+
+# check
+[ -n "$path" ] && [ -n "$dir" ] || exit 1
+chk-dir $path/$dir || exit 1
+
+# abort
+tmp=$path/$dir/.$(basename $0)
+chk-file $tmp && [[ $(file-age $tmp m) -lt $age ]] && exit 2
+
+# main
+for file in $(ls -r $path/$dir/* 2>/dev/null); do
+	[[ $(file-age $file m) -gt $age ]] && rm -rf $file
+done
+touch $tmp

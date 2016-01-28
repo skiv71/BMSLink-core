@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# args
+dev=$1
+pnt=$2
+type=$3
+val=$4
+ts=$5
+
+# initialise
+table=settings
+alias=$(prt-und $(pnt-alias $dev $pnt))
+
+# abort
+[ -n "$alias" ] || exit 0
+
+# check
+host=$(sys-setting scada-host)
+port=$(sys-setting scada-port)
+chk-tcp $host $port || exit 1
+
+# url
+url="http://"$host":"$port"/httpds?__device="$dev"&"$(url-encode $(sql-unsafe "$alias"))"="$val
+tim=$(http-ts $ts)
+if [ -n "$tim" ]; then
+  url+="&__time="$tim
+fi
+
+# main
+http-get $url &>/dev/null

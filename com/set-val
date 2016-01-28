@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# args
+dev=$1
+pnt=$2
+val=$3
+
+# initialise
+type=$(pnt-type $dev $pnt)
+ts=$(get-ep)
+
+# check
+[ -n "$type" ] || exit 1
+
+# types
+declare -A types
+types[rfxcom]=rfx-send
+types[zway]=zwy-send
+types[wifilink]=wfl-send
+
+# main
+for key in ${!types[@]}; do
+	if [ "$type" = "$key" ]; then
+		export PATH=$PATH:$(lib-path $type)
+		func=${types[$key]}
+		$func $dev $pnt $val
+		ctrl-upd $@ $ts
+		exit 0
+	fi
+done
+
+exit 1

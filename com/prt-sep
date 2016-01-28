@@ -1,0 +1,7 @@
+#!/bin/bash
+exit
+while [[ ${#str} -lt 80 ]]; do
+	str+=-
+done
+
+echo $str

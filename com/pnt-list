@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# table
+table=points
+
+# main
+bms-sql SELECT '*' FROM $table ORDER BY device ASC | {
+	while read line; do
+		echo $line
+	done
+}

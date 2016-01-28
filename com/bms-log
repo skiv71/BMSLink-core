@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# args
+log=$1
+
+# check
+[[ $# -eq 1 ]] || exit 1
+
+# initialise
+table=logs
+if grep .sh <<< $log >/dev/null; then
+	type=sys
+  log=${log//.sh/}
+else
+	type=dev
+fi
+
+# table
+sql-tables $table
+
+# main
+while read text; do
+	if [ "$type" = "dev" ]; then
+		[[ $(bms-sql SELECT logging FROM devices WHERE serial=\"$log\") -eq 1 ]] || continue
+	fi
+	bms-sql "INSERT INTO $table (log,text,epoch,timestamp) VALUES (\"$log\",\"$text\",\"$(get-ep)\",\"$(date +%c)\")"
+done

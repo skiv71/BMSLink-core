@@ -1,0 +1,55 @@
+#!/bin/bash
+
+# args
+dev=$1
+
+# port
+prt=$(dev-prt $dev)
+
+# check
+[ -n "$prt" ] || exit 1
+
+# iniitialise
+link=/dev/$dev
+
+# functions
+probe() {
+	if [ -n "$opt" ]; then
+		[ -c $1 ]
+	else
+		ip=(${1//:/ })
+		chk-tcp ${ip[1]} ${ip[2]}
+	fi
+}
+
+end() {
+	kill $socat 2>/dev/null
+}
+
+# traps
+trap end SIGTERM SIGINT SIGHUP
+
+# existing
+kill $(pgrep -f "PTY,link=$link") 2>/dev/null
+
+# port
+grep TCP <<< $prt >/dev/null || opt=,raw,echo=0
+
+# connect
+socat PTY,link=$link $prt$opt &
+socat=$!
+disown $socat
+
+# monitor
+fail=0
+n=0
+while chk-pid $PPID; do
+	if [[ $n -ge 5 ]]; then
+		probe $prt && fail=0 || ((fail++))
+		n=0
+	fi
+	chk-pid $socat && [[ $fail -lt 5 ]] || break
+	((n++))
+	sleep 1
+done
+end

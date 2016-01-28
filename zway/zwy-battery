@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# args
+dev=$1
+
+# initialise
+path=$(dev-path $dev)
+tmp=$path/.$(basename $0)
+ep=$(get-ep)
+
+# libs
+if ! grep zway <<< $PATH >/dev/null; then
+  export PATH=$PATH:$(lib-path zway)
+fi
+
+# check
+[ -n "$path" ] && chk-dir $path/wake && chk-dir $path/node || exit 1
+
+# abort
+chk-file $tmp && [[ $(file-age $tmp) -lt 30 ]] && exit 2
+
+# main
+for file in $(ls $path/wake/* 2>/dev/null); do
+	node=$(basename $file)
+	wake=$(<$file)
+	[[ $((wake-ep)) -gt 120 ]] && continue
+	chk-file $path/node/$node || continue
+  while read id; do
+    keys=$(zwy-keys $id)
+    [ -n "$keys" ] || continue
+    zwy-cmd $dev $id || continue
+    url=$(zwy-url $dev $id) || continue
+    get=$(zwy-get $url)
+    if [ -n "$get" ]; then
+      [ -n "$gets" ] && gets+=", "
+      gets+=$get
+    fi
+    sleep 0.1
+  done < $path/node/$node
+	rm -rf $file
+done
+if [ -n "$gets" ]; then
+	echo auto poll [battery]: $gets
+fi
+touch $tmp

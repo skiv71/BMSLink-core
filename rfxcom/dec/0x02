@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# check
+[[ $# -eq 1 ]] || exit 1
+
+# main
+st=${1:4:2}
+msg=${1:8:2}
+[ "$st" = "00" ] && echo transmit,ERROR[msg-ignored]
+if [ "$st" = "01" ]; then
+	[ "$msg" = "00" ] && echo transmit,OK
+	[ "$msg" = "01" ] && echo transmit,OK[delay-send]
+	[ "$msg" = "02" ] && echo transmit,ERROR[no-lock]
+	[ "$msg" = "03" ] && echo transmit,ERROR[id-error]
+fi

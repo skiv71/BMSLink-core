@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# args
+dev=$1
+zp=$2
+
+# check
+[[ $# -eq 2 ]] || exit 1
+
+# libs
+if ! grep zway <<< $PATH >/dev/null; then
+  export PATH=$PATH:$(lib-path zway)
+fi
+
+# initialise
+zway=$(zwy-path)
+home=$zway/serial/$dev
+prt=$(dev-prt $dev)
+
+chk-dir $zway && chk-dir $home && [ -c "$prt" ] || exit 1
+
+# main.js
+main=$home/automation/main.js
+
+sed -i "s|ws = .*|ws = new WebServer($2, WebServerRequestHandler, {|g" $main
+sed -i "s|document_root.*|document_root: \"$home\"|g" $main
+
+# config-xxx.json
+conf=$(ls $home/automation/storage/conf*.json)
+
+[ -z "$conf" ] && exit 1
+
+# backup
+cp $conf $conf.$(get-ep)
+
+# json
+declare -A params
+
+params[port]=$prt
+params[config]=$home/config
+params[translations]=$home/translations
+params[ZDDX]=$home/ZDDX
+
+json=$(jq . $conf)
+for key in ${!params[@]}; do
+	json=$(jq ".instances[0].params.$key = \"${params[$key]}\"" <<< $json)
+done
+echo "$json" > $conf
+
+# clean up
+n=0
+for file in $(ls -t $conf.* 2>/dev/null); do
+	((n++))
+	[[ $n -lt 3 ]] && continue
+	[[ $(file-age $file h) -gt 24 ]] && rm -rf $file
+done
+exit 0

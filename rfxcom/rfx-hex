@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# args
+dev=$1
+opt=$2
+
+# initialise
+path=$(dev-path $dev)
+[ -n "$files" ] || files=1
+
+# check
+[ -n "$path" ] && chk-dir $path/listen || exit 1
+
+# main
+path+=/listen
+
+case $opt in
+
+		init)
+				for file in $(ls $path/* 2>/dev/null); do
+					rm -rf $file
+				done
+				;;
+
+		*)
+				chk-int $opt && files=$opt || files=1
+				n=0
+				for file in $(ls $path/*.hex 2>/dev/null); do
+					echo $file
+					((n++))
+					[[ $n -lt $files ]] || break
+				done
+				;;
+
+esac

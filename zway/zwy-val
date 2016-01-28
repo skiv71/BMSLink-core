@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# args
+id=$1
+val=${2,,}
+
+# check
+[[ $# -eq 2 ]] || exit 1
+
+# main
+a=(${id//./ })
+b=(${val//./ })
+
+case ${a[2]} in
+
+  37|38)
+		if [ "$val" = "off" ]; then
+			echo 0
+		elif [ "$val" = "on" ]; then
+			echo 255
+		elif [[ $b -lt 0 ]]; then
+      echo 0
+    elif [[ $b -gt 99 ]]; then
+      echo 99
+    else
+      echo $b
+    fi
+    ;;
+
+    *)
+      [ "${b[1]}" = "0" ] && echo $b || echo $val
+      ;;
+
+esac

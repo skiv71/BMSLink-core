@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# args
+name=$1
+
+# intialise
+table=settings
+
+# settings
+declare -A settings
+
+settings[smtp-server]=text
+settings[smtp-user]=text
+settings[smtp-pass]=text
+settings[scada-host]=text
+settings[scada-port]=text
+settings[automation]=select
+settings[purge-time]=text
+settings[purge-logs]=text
+
+# table
+sql-tables $table
+
+# check setting
+names=($(bms-sql SELECT name FROM $table))
+for key in ${!settings[@]}; do
+	if ! grep $key <<< ${names[@]} >/dev/null; then
+		bms-sql INSERT INTO $table "(name,type)" VALUES "(\"$key\",\"${settings[$key]}\")"
+	fi
+done
+
+# main
+if [ -n "$name" ]; then
+	bms-sql SELECT value FROM $table WHERE name=\"$name\"
+fi

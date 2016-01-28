@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# args
+dev=$1
+pnt=$2
+
+# check
+[ -n "$pnt" ] || exit 1
+
+# initialise
+table=points
+
+# main
+bms-sql SELECT alias FROM $table WHERE device=\"$dev\" AND point=\"$pnt\"

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# args
+dev=$1
+pnt=$2
+
+# check
+[ -n "$pnt" ] || exit 1
+
+# table
+table=points
+
+# sql
+sql="SELECT timestamp FROM $table WHERE device=\"$dev\" AND point=\"$pnt\""
+
+# main
+bms-sql $sql 2>/dev/null

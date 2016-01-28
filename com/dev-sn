@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# args
+str=$1
+
+# check
+[[ $# -eq 1 ]] || exit 1
+
+# file
+if chk-file $str; then
+	a=(${str//\// })
+	b=${a[3]}
+	[ -n "$b" ] && echo $b
+	exit 0
+else
+	str=(${str//,/ })
+fi
+
+# string
+declare -A types
+
+types[rpi]="ttyAMA0"
+types[rfx]="RFXCOM_RFXtrx433"
+types[wfl]="740abc"
+types[zst]="FTDI_FT232R_USB_UART"
+types[net]="[0-9]\."
+
+for key in ${!types[@]}; do
+	grep ${types[$key]} <<< $str >/dev/null || continue
+	type=$key
+done
+
+case $type in
+
+		rfx|zst)
+				a=(${str//-/ })
+				b=$(awk -F '_' '{print $NF}' <<< ${a[1]})
+				;;
+
+		rpi)
+				a=(${str//-/ })
+				b=${a[1]}
+				;;
+
+		wfl)
+				a=${str:6:11}
+				[ -n "$a" ] && b="w"$a
+				;;
+
+		net)
+				b=$str
+				;;
+
+esac
+
+[ -n "$b" ] || exit 1
+
+echo $b

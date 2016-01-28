@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# args
+ip=$1
+sep=$2
+
+# check
+chk-ip $ip || exit 1
+
+# main
+n=0
+while [[ $n -lt 2 ]]; do
+	arp=($(arp -n | grep $ip | grep -v "incomplete"))
+	if [ -n "${arp[2]}" ]; then
+		echo ${arp[2]//:/$sep}
+		exit 0
+	else
+		ping-host $ip
+	fi
+	((n++))
+done
+
+exit 1

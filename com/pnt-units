@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# check
+[[ $# -ge 1 ]] || exit 1
+
+# table
+table=points
+
+# sql
+if [ -n "$2" ]; then
+	sql="SELECT units FROM $table WHERE device=\"$1\" AND point=\"$2\""
+else
+	sql="SELECT units FROM $table WHERE alias=\"$1\""
+fi
+
+# main
+bms-sql $sql 2>/dev/null

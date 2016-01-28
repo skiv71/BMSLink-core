@@ -1,0 +1,18 @@
+#!/bin/bash
+
+sql-api() {
+	a=($(readlink -f $0 | tr '/' ' '))
+	table=${a[-2]}
+	method=${a[-1]}
+	case $1 in
+			table)
+					echo $table
+					;;
+			method)
+					echo $method
+					;;
+			*)
+					echo $(lib-path API)/$method $table
+					;;
+	esac
+}

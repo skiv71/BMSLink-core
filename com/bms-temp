@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# path
+path=$(bms-path)
+
+# check
+[[ $? -eq 0 ]] && [ -n "$path" ] || exit 1
+
+# start
+path+=/temp
+
+# init
+chk-dir $path || mkdir -p $path
+if ! df -h | grep $path >/dev/null; then
+	mount -t tmpfs -o size=50M tmpfs $path
+	touch $path/.temp
+fi
+echo $path

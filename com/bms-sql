@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# args
+sql=$@
+
+# initialise
+db=bmslink
+user=root
+pass=
+
+# user/pass
+[ -n "$db" ] && [ -n "$user" ] || exit 1
+[ -n "$pass" ] && pass=-p$pass
+
+# main
+mysql -u $user $pass $db -sNe "$sql"

@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# initialise
+log=$1
+
+# check
+chk-file $log || exit 1
+
+# parse
+a=($(grep accepting $log))
+
+[ -n "$a" ] || exit 1
+
+b=${a[-1]}
+ip=(${b//:/ })
+
+[ -n "$ip" ] || exit 1
+
+mac=$(get-mac $ip)
+
+[ -n "$mac" ] || exit 1
+
+echo $mac,$ip

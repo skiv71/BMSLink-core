@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# args
+str=$1
+
+# check
+[[ $# -eq 1 ]] || exit 1
+
+# initialise
+table=devices
+declare -A types
+
+types[zway]="FTDI_FT232R_USB_UART ttyAMA0"
+types[rfxcom]="RFXCOM_RFXtrx433"
+types[wifilink]="740abc"
+types[cidr]="[0-9]\."
+
+# main
+type=$(bms-sql SELECT type FROM $table WHERE serial=\"$str\" 2>/dev/null)
+if [ -n "$type" ]; then
+	echo $type
+else
+	for key in ${!types[@]}; do
+		case $str in
+					types)
+							echo $key
+							;;
+
+					*)
+							for val in ${types[$key]}; do
+								grep $val <<< $str >/dev/null || continue
+								echo $key
+								exit 0
+							done
+		esac
+	done
+fi
+exit 1

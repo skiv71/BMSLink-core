@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# initialise
+path=$(bms-temp)
+tmp=$path/.$(basename $0)
+
+# check
+[ -n "$path" ] || exit 1
+
+# kill
+for pid in $(pgrep -f "udp-l:9877,fork"); do
+  kill -9 $pid
+done
+
+# main
+echo | socat - UDP-DATAGRAM:255.255.255.255:9876,broadcast > $tmp
+
+while read prt; do
+	grep $prt <<< $prts >/dev/null && continue
+	echo $prt
+	prts+=$prt" "
+done < $tmp

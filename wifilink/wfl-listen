@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# initialise
+path=$(bms-temp)
+scan=$(wfl-scan file)
+int=60
+
+# check
+[ -n "$path" ] || exit 1
+
+# trap
+trap exit SIGINT SIGTERM SIGHUP
+
+# start
+path+=/wifilink
+
+chk-dir $path || exit 1
+
+# main
+n=0
+while [ -n "$(pgrep -f "wifilink.sh")" ]; do
+	msg=$path/.message
+	lis=$path/.listen
+	> $lis
+	socat -d -d -T 0.1 -lf $lis - udp-l:9761 > $msg
+	id=$(wfl-id $lis)
+	dev=($(dev-sn $id))
+	if [ -n "$(dev-path $dev)" ]; then
+		wfl-msg $dev $msg
+	fi
+	if [[ $n -lt 3 ]]; then
+		((n++))
+		continue
+	fi
+	if [[ $(file-age $scan) -gt $int ]]; then
+		prt-sep
+		prt-msg "wifilink scan!"
+		wfl-scan force >/dev/null
+	fi
+done

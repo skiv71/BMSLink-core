@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# args
+prt=$1
+hex=$2
+
+# check
+[ -c $prt ] || exit 1
+
+# main
+echo $hex | xxd -r -p >$prt

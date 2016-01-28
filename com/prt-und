@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# check
+[[ $# -lt 1 ]] && exit 1
+
+# main
+str=$@
+grep _ <<< $str >/dev/null && echo ${str//_/ } || echo ${str// /_}

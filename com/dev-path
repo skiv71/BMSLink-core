@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# args
+sn=$1
+type=$2
+
+# initialise
+path=$(bms-temp)
+table=devices
+
+# check
+[ -n "$path" ] && [[ $# -ge 1 ]] || exit 1
+
+# main
+if [ -n "$type" ]; then
+	path+=/$type/$sn
+	echo $path
+else
+	if chk-int $sn; then
+		bms-sql SELECT path FROM $table where id=\"$sn\" 2>/dev/null
+	else
+		bms-sql SELECT path FROM $table where serial=\"$sn\" 2>/dev/null
+	fi
+fi

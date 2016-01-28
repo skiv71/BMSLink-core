@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# args
+dev=$1
+
+# check
+[ -n "$(dev-path $dev)" ] || exit 1
+
+# main
+sql="update points set value=\"\",timestamp=\"\" where point like \"\%$dev\%\""
+
+bms-sql $sql 2>/dev/null
